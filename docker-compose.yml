@@ -12,12 +12,30 @@ services:
         environment:
             - CLUSTER_NAME=ucsp
 
-    hdfsdatanode:
+    hdfsdatanode1:
         image: uhopper/hadoop-datanode:2.7.2
         links:
             - hdfsnamenode
         volumes:
-            - hdfsdatanode:/hadoop/dfs/data 
+            - hdfsdatanode1:/hadoop/dfs/data
+        environment:
+            - CORE_CONF_fs_defaultFS=hdfs://hdfsnamenode:8020
+
+    hdfsdatanode2:
+        image: uhopper/hadoop-datanode:2.7.2
+        links:
+            - hdfsnamenode
+        volumes:
+            - hdfsdatanode2:/hadoop/dfs/data
+        environment:
+            - CORE_CONF_fs_defaultFS=hdfs://hdfsnamenode:8020
+
+    hdfsdatanode3:
+        image: uhopper/hadoop-datanode:2.7.2
+        links:
+            - hdfsnamenode
+        volumes:
+            - hdfsdatanode3:/hadoop/dfs/data
         environment:
             - CORE_CONF_fs_defaultFS=hdfs://hdfsnamenode:8020
 
@@ -30,7 +48,25 @@ services:
         environment:
             - CORE_CONF_fs_defaultFS=hdfs://hdfsnamenode:8020
 
-    yarnnodemanager:
+    yarnnodemanager1:
+        image: uhopper/hadoop-nodemanager:2.7.2
+        links:
+            - hdfsnamenode
+            - yarnresourcemanager
+        environment:
+            - CORE_CONF_fs_defaultFS=hdfs://hdfsnamenode:8020
+            - YARN_CONF_yarn_resourcemanager_hostname=yarnresourcemanager
+
+    yarnnodemanager2:
+        image: uhopper/hadoop-nodemanager:2.7.2
+        links:
+            - hdfsnamenode
+            - yarnresourcemanager
+        environment:
+            - CORE_CONF_fs_defaultFS=hdfs://hdfsnamenode:8020
+            - YARN_CONF_yarn_resourcemanager_hostname=yarnresourcemanager
+
+    yarnnodemanager3:
         image: uhopper/hadoop-nodemanager:2.7.2
         links:
             - hdfsnamenode
@@ -54,4 +90,6 @@ services:
 
 volumes:
     hdfsname:
-    hdfsdatanode:
+    hdfsdatanode1:
+    hdfsdatanode2:
+    hdfsdatanode3:
