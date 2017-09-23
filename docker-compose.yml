@@ -1,0 +1,57 @@
+version: '3'
+
+
+services:
+    hdfsnamenode:
+        image: uhopper/hadoop-namenode:2.7.2
+        volumes:
+            - hdfsname:/hadoop/dfs/name
+        ports:
+            - "50070:50070"  # webui
+            - "8020:8020"  # filesystem
+        environment:
+            - CLUSTER_NAME=ucsp
+
+    hdfsdatanode:
+        image: uhopper/hadoop-datanode:2.7.2
+        links:
+            - hdfsnamenode
+        volumes:
+            - hdfsdatanode:/hadoop/dfs/data 
+        environment:
+            - CORE_CONF_fs_defaultFS=hdfs://hdfsnamenode:8020
+
+    yarnresourcemanager:
+        image: uhopper/hadoop-resourcemanager:2.7.2
+        links:
+            - hdfsnamenode
+        ports:
+            - "8088:8088"  # webui
+        environment:
+            - CORE_CONF_fs_defaultFS=hdfs://hdfsnamenode:8020
+
+    yarnnodemanager:
+        image: uhopper/hadoop-nodemanager:2.7.2
+        links:
+            - hdfsnamenode
+            - yarnresourcemanager
+        environment:
+            - CORE_CONF_fs_defaultFS=hdfs://hdfsnamenode:8020
+            - YARN_CONF_yarn_resourcemanager_hostname=yarnresourcemanager
+
+    runner:
+        image: uhopper/hadoop-spark:2.0.2_2.7.2
+        volumes:
+            - ./data:/root/
+        links:
+            - hdfsnamenode
+            - yarnresourcemanager
+        environment:
+            - CORE_CONF_fs_defaultFS=hdfs://hdfsnamenode:8020
+            - YARN_CONF_yarn_resourcemanager_hostname=yarnresourcemanager
+        command: tail -f /var/log/dmesg
+
+
+volumes:
+    hdfsname:
+    hdfsdatanode:
