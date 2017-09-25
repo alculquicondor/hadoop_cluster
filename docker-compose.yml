@@ -4,6 +4,7 @@ version: '3'
 services:
     hdfsnamenode:
         image: uhopper/hadoop-namenode:2.7.2
+        hostname: hdfsnamenode
         volumes:
             - hdfsname:/hadoop/dfs/name
         ports:
@@ -11,69 +12,108 @@ services:
             - "8020:8020"  # filesystem
         environment:
             - CLUSTER_NAME=ucsp
+        deploy:
+            placement:
+                constraints:
+                    - node.hostname == aldorithm
 
     hdfsdatanode1:
         image: uhopper/hadoop-datanode:2.7.2
+        hostname: hdfsdatanode1
         links:
             - hdfsnamenode
         volumes:
             - hdfsdatanode1:/hadoop/dfs/data
         environment:
             - CORE_CONF_fs_defaultFS=hdfs://hdfsnamenode:8020
+        deploy:
+            placement:
+                constraints:
+                    - node.hostname == swarm-node
 
     hdfsdatanode2:
         image: uhopper/hadoop-datanode:2.7.2
+        hostname: hdfsdatanode2
         links:
             - hdfsnamenode
         volumes:
             - hdfsdatanode2:/hadoop/dfs/data
         environment:
             - CORE_CONF_fs_defaultFS=hdfs://hdfsnamenode:8020
+        deploy:
+            placement:
+                constraints:
+                    - node.hostname == swarm-node
 
     hdfsdatanode3:
         image: uhopper/hadoop-datanode:2.7.2
+        hostname: hdfsdatanode3
         links:
             - hdfsnamenode
         volumes:
             - hdfsdatanode3:/hadoop/dfs/data
         environment:
             - CORE_CONF_fs_defaultFS=hdfs://hdfsnamenode:8020
+        deploy:
+            placement:
+                constraints:
+                    - node.hostname == swarm-node
 
     yarnresourcemanager:
         image: uhopper/hadoop-resourcemanager:2.7.2
+        hostname: yarnresourcemanager
         links:
             - hdfsnamenode
         ports:
             - "8088:8088"  # webui
         environment:
             - CORE_CONF_fs_defaultFS=hdfs://hdfsnamenode:8020
+        deploy:
+            placement:
+                constraints:
+                    - node.hostname == aldorithm
 
     yarnnodemanager1:
         image: uhopper/hadoop-nodemanager:2.7.2
+        hostname: yarnnodemanager1
         links:
             - hdfsnamenode
             - yarnresourcemanager
         environment:
             - CORE_CONF_fs_defaultFS=hdfs://hdfsnamenode:8020
             - YARN_CONF_yarn_resourcemanager_hostname=yarnresourcemanager
+        deploy:
+            placement:
+                constraints:
+                    - node.hostname == swarm-node
 
     yarnnodemanager2:
         image: uhopper/hadoop-nodemanager:2.7.2
+        hostname: yarnnodemanager2
         links:
             - hdfsnamenode
             - yarnresourcemanager
         environment:
             - CORE_CONF_fs_defaultFS=hdfs://hdfsnamenode:8020
             - YARN_CONF_yarn_resourcemanager_hostname=yarnresourcemanager
+        deploy:
+            placement:
+                constraints:
+                    - node.hostname == swarm-node
 
     yarnnodemanager3:
         image: uhopper/hadoop-nodemanager:2.7.2
+        hostname: yarnnodemanager3
         links:
             - hdfsnamenode
             - yarnresourcemanager
         environment:
             - CORE_CONF_fs_defaultFS=hdfs://hdfsnamenode:8020
             - YARN_CONF_yarn_resourcemanager_hostname=yarnresourcemanager
+        deploy:
+            placement:
+                constraints:
+                    - node.hostname == swarm-node
 
     runner:
         image: alculquicondor/hadoop-runner
@@ -89,6 +129,10 @@ services:
             - CORE_CONF_fs_defaultFS=hdfs://hdfsnamenode:8020
             - YARN_CONF_yarn_resourcemanager_hostname=yarnresourcemanager
         command: tail -f /var/log/dmesg
+        deploy:
+            placement:
+                constraints:
+                    - node.hostname == aldorithm
 
 
 volumes:
