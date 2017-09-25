@@ -76,9 +76,12 @@ services:
             - YARN_CONF_yarn_resourcemanager_hostname=yarnresourcemanager
 
     runner:
-        image: uhopper/hadoop-spark:2.0.2_2.7.2
+        image: alculquicondor/hadoop-runner
+        build:
+            dockerfile: dockerfiles/runner.Dockerfile
+            context: .
         volumes:
-            - ./data:/root/
+            - ./data:/root/data
         links:
             - hdfsnamenode
             - yarnresourcemanager
