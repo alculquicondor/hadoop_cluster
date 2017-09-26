@@ -23,9 +23,9 @@ Type to list all the current slaves joined to the swarm :
     docker node ls
 
 ### Set up Docker 
-Edit deploys placements nodes at `docker-compose.yml` to setup the hostname of the master and the slave.  Edit **node.hostname** value for every node in the swarm. 
-Use the following tags for the master node *yarnresourcemanager*, *hdfsnamenode*, *runner*. 
-For slaves, use tags like *yarnresourcemanager{#}*, *hdfsnamenode{#}*.
+Edit deploys placements nodes at `docker-compose.yml` to setup the hostname of the master and the cluster name.  
+Edit the value of all of the ocurrences of **node.hostname** value with the master hostname.. 
+For slaves, the YAML file generate isntances for every node connected to the docker swarm.
 Pull the docker images with
 
     docker-compose pull
@@ -46,10 +46,11 @@ Move to data directory and run the scripts for :
     
     cd /root/data
     ./scripts/initial_setup.sh
+    ./scripts/enlarge_data.sh
     ./scripts/upload_input.sh 
     ./scripts/compile_wordcount.sh 
     ./scripts/run_wordcount.sh 
-    
+   
 ## Authors
 This Hadoop cluster application was made at San Pablo Catholic University (Peru) for the Cloud Computing class by:
 - [Aldo Culquicondor](https://github.com/alculquicondor)
