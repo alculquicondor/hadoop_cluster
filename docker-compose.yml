@@ -19,7 +19,7 @@ services:
 
     hdfsdatanode:
         image: uhopper/hadoop-datanode:2.7.2
-        hostname: "hdfsdatanode-{{.Node.ID}}"
+        hostname: "hdfsdatanode"
         depends_on:
             - hdfsnamenode
         volumes:
@@ -49,7 +49,7 @@ services:
 
     yarnnodemanager:
         image: uhopper/hadoop-nodemanager:2.7.2
-        hostname: "yarnnodemanager-{{.Node.ID}}"
+        hostname: "yarnnodemanager"
         depends_on:
             - hdfsnamenode
             - yarnresourcemanager

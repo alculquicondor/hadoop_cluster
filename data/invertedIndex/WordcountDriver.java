@@ -1,4 +1,3 @@
-
 import org.apache.hadoop.conf.Configured;
 
 import org.apache.hadoop.fs.FileSystem;
@@ -11,6 +10,16 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
+
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Reducer;
+
+import java.io.IOException;
+
+import java.util.StringTokenizer;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 
 public class WordcountDriver extends Configured implements Tool {
 	public int run(String[] args) throws Exception {
@@ -62,4 +71,59 @@ public class WordcountDriver extends Configured implements Tool {
 		int res = ToolRunner.run(wordcountDriver, args);
 	    System.exit(res);
 	}
+
+    public class WordcountMapper extends
+            Mapper<LongWritable, Text, Text, Text> {
+
+        private Text word = new Text();
+        private Text filename = new Text();
+
+        private boolean caseSensitive = false;
+
+        @Override
+        public void map(LongWritable key, Text value, Context context)
+                throws IOException, InterruptedException {
+            String filenameStr = ((FileSplit) context.getInputSplit()).getPath().getName();
+            filename = new Text(filenameStr);
+            
+            String line = value.toString();
+
+            if (!caseSensitive) {
+                line = line.toLowerCase();
+            }
+
+            StringTokenizer tokenizer = new StringTokenizer(line);
+            while (tokenizer.hasMoreTokens()) {
+                word.set(tokenizer.nextToken());			
+                context.write(word, filename);
+            }
+        }
+
+        @Override
+        protected void setup(Context context) throws IOException, InterruptedException {
+            Configuration conf = context.getConfiguration();
+            this.caseSensitive = conf.getBoolean("wordcount.case.sensitive",false);
+        }
+    }
+
+    public class WordcountReducer extends Reducer<Text, Text, Text, Text> {
+
+        @Override
+        public void reduce(final Text key, final Iterable<Text> values,
+                final Context context) throws IOException, InterruptedException {
+
+            StringBuilder stringBuilder = new StringBuilder();
+
+            for (Text value : values) {
+                stringBuilder.append(value.toString());
+
+                if (values.iterator().hasNext()) {
+                    stringBuilder.append(" -> ");
+                }
+            }
+
+            context.write(key, new Text(stringBuilder.toString()));
+        }
+
+    }
 }
