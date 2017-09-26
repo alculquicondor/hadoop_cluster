@@ -1,4 +1,4 @@
-version: '3'
+version: '3.3'
 
 
 services:
@@ -17,47 +17,21 @@ services:
                 constraints:
                     - node.hostname == aldorithm
 
-    hdfsdatanode1:
+    hdfsdatanode:
         image: uhopper/hadoop-datanode:2.7.2
-        hostname: hdfsdatanode1
+        hostname: "hdfsdatanode-{{.Node.ID}}"
         depends_on:
             - hdfsnamenode
         volumes:
-            - hdfsdatanode1:/hadoop/dfs/data
+            - hdfsdatanode:/hadoop/dfs/data
         environment:
             - CORE_CONF_fs_defaultFS=hdfs://hdfsnamenode:8020
         deploy:
+            mode: global
+            endpoint_mode: dnsrr
             placement:
                 constraints:
-                    - node.hostname == dj-PC
-
-    hdfsdatanode2:
-        image: uhopper/hadoop-datanode:2.7.2
-        hostname: hdfsdatanode2
-        depends_on:
-            - hdfsnamenode
-        volumes:
-            - hdfsdatanode2:/hadoop/dfs/data
-        environment:
-            - CORE_CONF_fs_defaultFS=hdfs://hdfsnamenode:8020
-        deploy:
-            placement:
-                constraints:
-                    - node.hostname == charles-Lenovo-G480
-
-    hdfsdatanode3:
-        image: uhopper/hadoop-datanode:2.7.2
-        hostname: hdfsdatanode3
-        depends_on:
-            - hdfsnamenode
-        volumes:
-            - hdfsdatanode3:/hadoop/dfs/data
-        environment:
-            - CORE_CONF_fs_defaultFS=hdfs://hdfsnamenode:8020
-        deploy:
-            placement:
-                constraints:
-                    - node.hostname == dj-PC
+                    - node.hostname != aldorithm
 
     yarnresourcemanager:
         image: uhopper/hadoop-resourcemanager:2.7.2
@@ -73,9 +47,9 @@ services:
                 constraints:
                     - node.hostname == aldorithm
 
-    yarnnodemanager1:
+    yarnnodemanager:
         image: uhopper/hadoop-nodemanager:2.7.2
-        hostname: yarnnodemanager1
+        hostname: "yarnnodemanager-{{.Node.ID}}"
         depends_on:
             - hdfsnamenode
             - yarnresourcemanager
@@ -83,37 +57,11 @@ services:
             - CORE_CONF_fs_defaultFS=hdfs://hdfsnamenode:8020
             - YARN_CONF_yarn_resourcemanager_hostname=yarnresourcemanager
         deploy:
+            endpoint_mode: dnsrr
+            mode: global
             placement:
                 constraints:
-                    - node.hostname == dj-PC
-
-    yarnnodemanager2:
-        image: uhopper/hadoop-nodemanager:2.7.2
-        hostname: yarnnodemanager2
-        depends_on:
-            - hdfsnamenode
-            - yarnresourcemanager
-        environment:
-            - CORE_CONF_fs_defaultFS=hdfs://hdfsnamenode:8020
-            - YARN_CONF_yarn_resourcemanager_hostname=yarnresourcemanager
-        deploy:
-            placement:
-                constraints:
-                    - node.hostname == charles-Lenovo-G480
-
-    yarnnodemanager3:
-        image: uhopper/hadoop-nodemanager:2.7.2
-        hostname: yarnnodemanager3
-        depends_on:
-            - hdfsnamenode
-            - yarnresourcemanager
-        environment:
-            - CORE_CONF_fs_defaultFS=hdfs://hdfsnamenode:8020
-            - YARN_CONF_yarn_resourcemanager_hostname=yarnresourcemanager
-        deploy:
-            placement:
-                constraints:
-                    - node.hostname == dj-PC
+                    - node.hostname != aldorithm
 
     runner:
         image: alculquicondor/hadoop-runner
@@ -137,6 +85,4 @@ services:
 
 volumes:
     hdfsname:
-    hdfsdatanode1:
-    hdfsdatanode2:
-    hdfsdatanode3:
+    hdfsdatanode:
