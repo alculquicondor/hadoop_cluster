@@ -1,4 +1,3 @@
-package org.puneetha.InvertedIndex;
 
 import java.io.IOException;
 
